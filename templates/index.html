@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Phishing Detector</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial,sans-serif;
+
+            background:linear-gradient(
+                -45deg,
+                #000000,
+                #07111f,
+                #001f3f,
+                #000000
+            );
+
+            background-size:400% 400%;
+            animation:cyberGlow 15s ease infinite;
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:30px;
+        }
+
+        @keyframes cyberGlow{
+            0%{background-position:0% 50%;}
+            50%{background-position:100% 50%;}
+            100%{background-position:0% 50%;}
+        }
+
+        .container{
+
+            width:850px;
+
+            background:rgba(10,15,30,0.92);
+
+            border-radius:20px;
+
+            padding:40px;
+
+            border:1px solid rgba(0,255,255,0.15);
+
+            box-shadow:
+                0 0 20px rgba(0,255,255,0.15),
+                0 0 50px rgba(0,255,255,0.05);
+
+            color:white;
+
+            backdrop-filter:blur(12px);
+        }
+
+        h1{
+            text-align:center;
+            color:#00e5ff;
+            margin-bottom:30px;
+            letter-spacing:2px;
+        }
+
+        input{
+
+            width:100%;
+
+            padding:16px;
+
+            border:none;
+
+            border-radius:10px;
+
+            font-size:16px;
+
+            margin-bottom:15px;
+        }
+
+        button{
+
+            width:100%;
+
+            padding:15px;
+
+            border:none;
+
+            border-radius:10px;
+
+            background:#00bcd4;
+
+            color:white;
+
+            font-size:18px;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        button:hover{
+
+            background:#00e5ff;
+
+            transform:scale(1.02);
+        }
+
+        .safe{
+
+            margin-top:25px;
+
+            background:#14532d;
+
+            padding:25px;
+
+            border-radius:12px;
+
+            text-align:center;
+        }
+
+        .danger{
+
+            margin-top:25px;
+
+            background:#7f1d1d;
+
+            padding:25px;
+
+            border-radius:12px;
+
+            text-align:center;
+        }
+
+        .time{
+
+            text-align:center;
+
+            margin-top:15px;
+
+            color:#d1d5db;
+        }
+
+        .risk-container{
+
+            margin-top:20px;
+
+            background:rgba(255,255,255,0.05);
+
+            padding:20px;
+
+            border-radius:12px;
+        }
+
+        .risk-bar{
+
+            width:100%;
+
+            height:28px;
+
+            background:#222;
+
+            border-radius:20px;
+
+            overflow:hidden;
+
+            margin-top:10px;
+        }
+
+        .risk-fill{
+
+            height:100%;
+
+            transition:1s ease;
+        }
+
+        .history{
+
+            margin-top:30px;
+
+            background:rgba(255,255,255,0.05);
+
+            padding:20px;
+
+            border-radius:12px;
+        }
+
+        .history h3{
+
+            color:#00e5ff;
+
+            margin-bottom:15px;
+        }
+
+        table{
+
+            width:100%;
+
+            border-collapse:collapse;
+        }
+
+        th,td{
+
+            padding:12px;
+
+            border-bottom:1px solid rgba(255,255,255,0.1);
+        }
+
+        th{
+            color:#00e5ff;
+        }
+
+        footer{
+
+            text-align:center;
+
+            margin-top:25px;
+
+            color:#9ca3af;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🛡 URL PHISHING DETECTOR</h1>
+
+    <form action="/predict" method="POST">
+
+        <input
+            type="text"
+            name="url"
+            placeholder="Enter URL here..."
+            required>
+
+        <button type="submit">
+            CHECK URL
+        </button>
+
+    </form>
+
+    {% if prediction == "safe" %}
+
+    <div class="safe">
+
+        <h2>✅ LEGITIMATE URL</h2>
+
+        <br>
+
+        <p>This website appears safe to visit.</p>
+
+    </div>
+
+    {% endif %}
+
+    {% if prediction == "danger" %}
+
+    <div class="danger">
+
+        <h2>⚠ PHISHING URL DETECTED</h2>
+
+        <br>
+
+        <p>Warning! This URL may be malicious.</p>
+
+    </div>
+
+    {% endif %}
+
+    {% if prediction %}
+
+    <div class="time">
+
+        Scan Time: {{ scan_time }}
+
+    </div>
+
+    <div class="risk-container">
+
+        <h3>📊 Risk Assessment</h3>
+
+        <br>
+
+        <p>
+            Risk Score:
+            <strong>{{ risk_score }}%</strong>
+        </p>
+
+        <div class="risk-bar">
+
+            <div
+                class="risk-fill"
+                style="
+                    width:{{ risk_score }}%;
+                    background:{{ risk_color }};
+                ">
+            </div>
+
+        </div>
+
+        <br>
+
+        <p>
+
+            Risk Level:
+
+            <strong style="color:{{ risk_color }}">
+
+                {{ risk_level }}
+
+            </strong>
+
+        </p>
+
+    </div>
+
+    {% endif %}
+
+    {% if history %}
+
+    <div class="history">
+
+        <h3>📜 Recent Scan History</h3>
+
+        <table>
+
+            <tr>
+                <th>URL</th>
+                <th>Status</th>
+            </tr>
+
+            {% for item in history %}
+
+            <tr>
+                <td>{{ item.url }}</td>
+                <td>{{ item.status }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    {% endif %}
+
+    <footer>
+
+        Cyber Security Project using Machine Learning
+
+    </footer>
+
+</div>
+
+</body>
+</html>
+
